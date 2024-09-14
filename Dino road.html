@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dino road</title>
+    <style type="text/css">
+        body {
+            background-color: rgb(255, 255, 255);
+            font-family: Arial, sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #contador {
+            font-size: 20px;
+            color: rgb(0, 0, 0);
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
+
+        canvas {
+            display: block;
+            background-color: lightgray;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="lienzo" width="1500" height="900"></canvas>
+    <div id="contador">Puntos: 0</div>
+
+    <script type="text/javascript">
+        const canvas = document.getElementById("lienzo");
+        const contexto = canvas.getContext("2d");
+        const contadorDiv = document.getElementById("contador");
+
+        const musica = new Audio("C:/Users/PRIDE ALPHA PLUS/Desktop/programacion avanzada/Examen uidad ll/zazaza.mp3");
+        musica.loop = true;
+
+        const sonidoColision = new Audio("C:/Users/PRIDE ALPHA PLUS/Desktop/programacion avanzada/Examen uidad ll/bomba.m4a");
+
+        const fondo = new Image();
+        fondo.src = "C:/Users/PRIDE ALPHA PLUS/Desktop/programacion avanzada/Examen uidad ll/fondo2.jpg";
+
+        const imagenes = {
+            arriba: "C:/Users/PRIDE ALPHA PLUS/Desktop/programacion avanzada/Examen uidad ll/DinoArriba.png",
+            abajo: "C:/Users/PRIDE ALPHA PLUS/Desktop/programacion avanzada/Examen uidad ll/DinoAbajo.png",
+            izquierda: "C:/Users/PRIDE ALPHA PLUS/Desktop/programacion avanzada/Examen uidad ll/dinoIzquierda.png",
+            derecha: "C:/Users/PRIDE ALPHA PLUS/Desktop/programacion avanzada/Examen uidad ll/dinoDerecha.png"
+        };
+
+        let imagenActual = new Image();
+        imagenActual.src = imagenes.abajo;
+
+        let posX = 700;
+        let posY = 850;
+        let direccion = "";
+        let velocidad = 5;
+        let puntos = 0;
+        let pause = false;
+        let gameOver = false;
+
+        const autoVelocidades = [10, 10, 10, 10];
+        let autos = [];
+
+        // Imagen de la llave
+        const llaveImg = new Image();
+        llaveImg.src = "C:/Users/PRIDE ALPHA PLUS/Desktop/programacion avanzada/Examen uidad ll/llave.png";
+        let objetivoX = 300;
+        let objetivoY = 300;
+
+        // Definición de los muros
+        const muros = [
+            { x: 100, y: 100, width: 200, height: 20 },
+            { x: 400, y: 300, width: 200, height: 20 },
+            { x: 700, y: 500, width: 200, height: 20 }
+        ];
+
+        function crearAutos() {
+            autos = [
+                { x: canvas.width + 100, y: 200, width: 100, height: 60, speed: -autoVelocidades[0] },
+                { x: canvas.width + 300, y: 200, width: 100, height: 60, speed: -autoVelocidades[0] },
+                { x: canvas.width + 500, y: 200, width: 100, height: 60, speed: -autoVelocidades[0] },
+                { x: canvas.width + 700, y: 200, width: 100, height: 60, speed: -autoVelocidades[0] },
+                { x: canvas.width + 900, y: 200, width: 100, height: 60, speed: -autoVelocidades[0] },
+                { x: -100, y: 350, width: 100, height: 60, speed: autoVelocidades[1] },
+                { x: -300, y: 350, width: 100, height: 60, speed: autoVelocidades[1] },
+                { x: -500, y: 350, width: 100, height: 60, speed: autoVelocidades[1] },
+                { x: -700, y: 350, width: 100, height: 60, speed: autoVelocidades[1] },
+                { x: -900, y: 350, width: 100, height: 60, speed: autoVelocidades[1] },
+                { x: canvas.width + 100, y: 510, width: 100, height: 60, speed: -autoVelocidades[2] },
+                { x: canvas.width + 300, y: 510, width: 100, height: 60, speed: -autoVelocidades[2] },
+                { x: canvas.width + 500, y: 510, width: 100, height: 60, speed: -autoVelocidades[2] },
+                { x: canvas.width + 700, y: 510, width: 100, height: 60, speed: -autoVelocidades[2] },
+                { x: canvas.width + 900, y: 510, width: 100, height: 60, speed: -autoVelocidades[2] },
+                { x: -100, y: 650, width: 100, height: 60, speed: autoVelocidades[3] },
+                { x: -300, y: 650, width: 100, height: 60, speed: autoVelocidades[3] },
+                { x: -500, y: 650, width: 100, height: 60, speed: autoVelocidades[3] },
+                { x: -700, y: 650, width: 100, height: 60, speed: autoVelocidades[3] },
+                { x: -900, y: 650, width: 100, height: 60, speed: autoVelocidades[3] },
+            ];
+        }
+
+        const autoImg = new Image();
+        autoImg.src = "C:/Users/PRIDE ALPHA PLUS/Desktop/programacion avanzada/Examen uidad ll/auto1.png";
+
+        function moverAutos() {
+            autos.forEach(auto => {
+                auto.x += auto.speed;
+                if (auto.speed > 0 && auto.x > canvas.width) {
+                    auto.x = -auto.width;
+                } else if (auto.speed < 0 && auto.x < -auto.width) {
+                    auto.x = canvas.width;
+                }
+            });
+        }
+
+        function detectarColisionConAutos() {
+            return autos.some(auto =>
+                posX < auto.x + auto.width &&
+                posX + 50 > auto.x &&
+                posY < auto.y + auto.height &&
+                posY + 50 > auto.y
+            );
+        }
+
+        function detectarColisionConMuros(x, y, width, height) {
+            return muros.some(muro =>
+                x < muro.x + muro.width &&
+                x + width > muro.x &&
+                y < muro.y + muro.height &&
+                y + height > muro.y
+            );
+        }
+
+        function obtenerPosicionAleatoria() {
+            let pos;
+            do {
+                pos = {
+                    x: Math.random() * (canvas.width - 20),
+                    y: Math.random() * (canvas.height - 20)
+                };
+            } while (detectarColisionConAutos(pos.x, pos.y, 15, 15));
+            return pos;
+        }
+
+        function detectarColisionConObjetivo() {
+            return (
+                posX < objetivoX + 30 && // Ajustado para tamaño de la llave
+                posX + 50 > objetivoX &&
+                posY < objetivoY + 30 &&
+                posY + 50 > objetivoY
+            );
+        }
+        function actualizar() {
+            let nuevaPosX = posX;
+            let nuevaPosY = posY;
+
+            if (!pause && !gameOver) {
+                switch (direccion) {
+                    case "arriba":
+                        nuevaPosY -= velocidad;
+                        if (nuevaPosY <= 0) { nuevaPosY = canvas.height; }
+                        break;
+                    case "abajo":
+                        nuevaPosY += velocidad;
+                        if (nuevaPosY >= canvas.height) { nuevaPosY = 0; }
+                        break;
+                    case "izquierda":
+                        nuevaPosX -= velocidad;
+                        if (nuevaPosX <= 0) { nuevaPosX = canvas.width; }
+                        break;
+                    case "derecha":
+                        nuevaPosX += velocidad;
+                        if (nuevaPosX >= canvas.width) { nuevaPosX = 0; }
+                        break;
+                }
+
+                // Verificar colisiones con los muros
+                if (!detectarColisionConMuros(nuevaPosX, nuevaPosY, 50, 50)) {
+                    posX = nuevaPosX;
+                    posY = nuevaPosY;
+                }
+
+                if (detectarColisionConAutos()) {
+                    sonidoColision.play();
+                    gameOver = true;
+                    musica.pause();
+                    setTimeout(() => {
+                        alert("¡Has perdido chale! Puntos: " + puntos);
+                        reiniciarJuego();
+                    }, 100);
+                }
+
+                if (detectarColisionConObjetivo()) {
+                    puntos++;
+                    contadorDiv.textContent = "Puntos: " + puntos;
+                    let nuevaPos = obtenerPosicionAleatoria();
+                    objetivoX = nuevaPos.x;
+                    objetivoY = nuevaPos.y;
+                }
+
+                moverAutos();
+            }
+
+            dibujar();
+            requestAnimationFrame(actualizar);
+        }
+
+        function dibujar() {
+            contexto.clearRect(0, 0, canvas.width, canvas.height);
+            contexto.drawImage(fondo, 0, 0, canvas.width, canvas.height);
+            contexto.drawImage(imagenActual, posX, posY, 50, 50);
+
+            autos.forEach(auto => {
+                contexto.drawImage(autoImg, auto.x, auto.y, auto.width, auto.height);
+            });
+
+            // Dibujar los muros
+            contexto.fillStyle = 'rgba(0, 0, 0, 0.5)'; // Color gris semitransparente
+            muros.forEach(muro => {
+                contexto.fillRect(muro.x, muro.y, muro.width, muro.height);
+            });
+
+            contexto.drawImage(llaveImg, objetivoX, objetivoY, 30, 30); // Dibujar la llave
+        }
+
+        function reiniciarJuego() {
+            posX = 700;
+            posY = 850;
+            puntos = 0;
+            contadorDiv.textContent = "Puntos: 0";
+            direccion = "";
+            gameOver = false;
+            musica.play();
+            crearAutos();
+        }
+
+        window.addEventListener("keydown", (e) => {
+            if (!musica.playing) {
+                musica.play();
+            }
+
+            switch (e.key) {
+                case "w":
+                    imagenActual.src = imagenes.arriba;
+                    direccion = "arriba";
+                    break;
+                case "s":
+                    imagenActual.src = imagenes.abajo;
+                    direccion = "abajo";
+                    break;
+                case "a":
+                    imagenActual.src = imagenes.izquierda;
+                    direccion = "izquierda";
+                    break;
+                case "d":
+                    imagenActual.src = imagenes.derecha;
+                    direccion = "derecha";
+                    break;
+            }
+        });
+
+        window.addEventListener("keyup", (e) => {
+            direccion = "";
+        });
+
+        crearAutos();
+        actualizar();
+    </script>
+</body>
+
+</html>
