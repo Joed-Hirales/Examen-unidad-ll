@@ -24,6 +24,14 @@
             left: 10px;
         }
 
+        #timerDisplay {
+            font-size: 20px;
+            color: rgb(0, 0, 0);
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
         canvas {
             display: block;
             background-color: lightgray;
@@ -34,7 +42,7 @@
 <body>
     <canvas id="lienzo" width="1500" height="900"></canvas>
     <div id="contador">Llaves: 0</div>
-
+    <div id="timerDisplay">Tiempo: 00:00</div>
     <script type="text/javascript">
         const canvas = document.getElementById("lienzo");
         const contexto = canvas.getContext("2d");
@@ -58,6 +66,9 @@
         let imagenActual = new Image();
         imagenActual.src = imagenes.abajo;
 
+        let time = 0;
+        let tiempoTranscurrido = 0;
+        let intervalID;
         let posX = 700;
         let posY = 850;
         let direccion = "";
@@ -69,13 +80,12 @@
         const autoVelocidades = [10, 10, 10, 10];
         let autos = [];
 
-        // Imagen de la llave
         const llaveImg = new Image();
         llaveImg.src = "llave.png";
         let objetivoX = 300;
         let objetivoY = 300;
 
-        // Definición de los muros
+
         const muros = [
             { x: 50, y: 60, width: 112, height: 105 },
             { x: 40, y: 280, width: 75, height: 65 },
@@ -159,12 +169,36 @@
 
         function detectarColisionConObjetivo() {
             return (
-                posX < objetivoX + 30 && // Ajustado para tamaño de la llave
+                posX < objetivoX + 30 &&
                 posX + 50 > objetivoX &&
                 posY < objetivoY + 30 &&
                 posY + 50 > objetivoY
             );
         }
+
+
+
+        function startTimer() {
+            tiempoTranscurrido = 0;
+            intervalID = setInterval(function () {
+                tiempoTranscurrido++;
+                actualizarTemporizador();
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(intervalID);
+        }
+
+        function actualizarTemporizador() {
+            const minutos = Math.floor(tiempoTranscurrido / 60);
+            const segundos = tiempoTranscurrido % 60;
+            const minutosStr = minutos < 10 ? "0" + minutos : minutos;
+            const segundosStr = segundos < 10 ? "0" + segundos : segundos;
+            document.getElementById("timerDisplay").innerText = "Tiempo: " + minutosStr + ":" + segundosStr;
+        }
+
+
         function actualizar() {
             let nuevaPosX = posX;
             let nuevaPosY = posY;
@@ -189,7 +223,6 @@
                         break;
                 }
 
-                // Verificar colisiones con los muros
                 if (!detectarColisionConMuros(nuevaPosX, nuevaPosY, 50, 50)) {
                     posX = nuevaPosX;
                     posY = nuevaPosY;
@@ -229,23 +262,21 @@
                 contexto.drawImage(autoImg, auto.x, auto.y, auto.width, auto.height);
             });
 
-            /* // Dibujar los muros
-            contexto.fillStyle = 'rgba(0, 0, 0, 0.5)'; // Color gris semitransparente
-            muros.forEach(muro => {
-                contexto.fillRect(muro.x, muro.y, muro.width, muro.height);
-            });
- */
             contexto.drawImage(llaveImg, objetivoX, objetivoY, 30, 30); // Dibujar la llave
         }
 
         function reiniciarJuego() {
             posX = 700;
             posY = 850;
-            puntos = 0;
-            contadorDiv.textContent = "Puntos: 0";
             direccion = "";
-            gameOver = false;
+            puntos = 0;
+            contadorDiv.innerText = "Llaves: 0";
             crearAutos();
+            musica.currentTime = 0;
+            musica.play();
+            stopTimer();
+            startTimer();
+            gameOver = false;
         }
 
         window.addEventListener("keydown", (e) => {
@@ -276,8 +307,10 @@
         window.addEventListener("keyup", (e) => {
             direccion = "";
         });
-
+        
         crearAutos();
+        musica.play();
+        startTimer();
         actualizar();
     </script>
 </body>
