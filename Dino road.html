@@ -24,6 +24,14 @@
             left: 10px;
         }
 
+        #controles {
+            font-size: 20px;
+            color: rgb(0, 0, 0);
+            position: absolute;
+            top: 40px;
+            left: 10px;
+        }
+
         #timerDisplay {
             font-size: 20px;
             color: rgb(0, 0, 0);
@@ -55,7 +63,9 @@
 
 <body>
     <canvas id="lienzo" width="1500" height="900"></canvas>
-    <div id="contador">Llaves: 0</div>
+    <div id="contador">Llaves: 0 <br> <br> </div>
+    <div id="controles">Controles: <br> <br> W - Arriba <br> <br> S - Abajo <br> <br> A - Izquierda <br> <br> D -
+        Derecha <br><br> P - Pausa</div>
     <div id="timerDisplay">Tiempo: 00:00</div>
     <div id="pauseOverlay">Juego pausado.</div>
     <script type="text/javascript">
@@ -222,19 +232,19 @@
                 switch (direccion) {
                     case "arriba":
                         nuevaPosY -= velocidad;
-                        if (nuevaPosY < 0) { nuevaPosY = 0; }  
+                        if (nuevaPosY < 0) { nuevaPosY = 0; }
                         break;
                     case "abajo":
                         nuevaPosY += velocidad;
-                        if (nuevaPosY + 50 > canvas.height) { nuevaPosY = canvas.height - 50; }  
+                        if (nuevaPosY + 50 > canvas.height) { nuevaPosY = canvas.height - 50; }
                         break;
                     case "izquierda":
                         nuevaPosX -= velocidad;
-                        if (nuevaPosX < 0) { nuevaPosX = 0; }  
+                        if (nuevaPosX < 0) { nuevaPosX = 0; }
                         break;
                     case "derecha":
                         nuevaPosX += velocidad;
-                        if (nuevaPosX + 50 > canvas.width) { nuevaPosX = canvas.width - 50; }  
+                        if (nuevaPosX + 50 > canvas.width) { nuevaPosX = canvas.width - 50; }
                         break;
                 }
 
@@ -288,15 +298,17 @@
             contadorDiv.innerText = "Llaves: 0";
             crearAutos();
             musica.currentTime = 0;
-            tiempoTranscurrido = 0; 
             musica.play();
+            tiempoTranscurrido = 0;
             stopTimer();
             startTimer(); // Reanuda el temporizador, pero mantiene el tiempo transcurrido
             gameOver = false;
         }
 
 
+
         window.addEventListener("keydown", function (evento) {
+            musica.play()
             if (gameOver) return;
 
             switch (evento.key) {
@@ -336,7 +348,7 @@
             if (pause) {
                 overlay.style.display = "flex";
                 musica.pause();
-                stopTimer(); 
+                stopTimer();
             } else {
                 overlay.style.display = "none";
                 musica.play();
