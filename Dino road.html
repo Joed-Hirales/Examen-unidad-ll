@@ -16,7 +16,7 @@
             height: 100vh;
         }
 
-        #contador {
+        #nivel {
             font-size: 20px;
             color: rgb(0, 0, 0);
             position: absolute;
@@ -24,11 +24,20 @@
             left: 10px;
         }
 
-        #controles {
+
+        #contador {
             font-size: 20px;
             color: rgb(0, 0, 0);
             position: absolute;
             top: 40px;
+            left: 10px;
+        }
+
+        #controles {
+            font-size: 20px;
+            color: rgb(0, 0, 0);
+            position: absolute;
+            top: 70px;
             left: 10px;
         }
 
@@ -78,6 +87,7 @@
 
 <body>
     <canvas id="lienzo" width="1500" height="900"></canvas>
+    <div id="nivel"> nivel: 1</div>
     <div id="contador">Llaves: 0 <br> <br> </div>
     <div id="controles">Controles: <br> <br> W - Arriba <br> <br> S - Abajo <br> <br> A - Izquierda <br> <br> D -
         Derecha <br><br> P - Pausa</div>
@@ -118,6 +128,9 @@
         let puntos = 0;
         let pause = false;
         let gameOver = false;
+        let nivel = 1; // Iniciamos el nivel en 1
+        const incrementoVelocidad = 2; // Velocidad adicional en cada nivel
+
 
         const autoVelocidades = [10, 10, 10, 10];
         let autos = [];
@@ -129,14 +142,20 @@
 
 
         const muros = [
-            { x: 50, y: 60, width: 112, height: 105 },
+            { x: 1, y: 1, width: 15001, height: 5 },
+            { x: 43, y: 60, width:120, height: 120 },
             { x: 40, y: 280, width: 75, height: 65 },
             { x: 685, y: 280, width: 75, height: 65 },
-            { x: 1400, y: 305, width: 55, height: 40 },
+            { x: 1395, y: 290, width: 60, height: 40 },
             { x: 308, y: 420, width: 110, height: 97 },
             { x: 1066, y: 420, width: 95, height: 97 },
             { x: 90, y: 600, width: 50, height: 45 },
-            { x: 1310, y: 600, width: 72, height: 65 }
+            { x: 1310, y: 600, width: 72, height: 65 },
+            { x: 1250, y: 10, width: 225, height: 185 },
+            { x: 430, y: 90, width: 120, height: 65 },
+            { x: 1115, y: 80, width: 110, height: 65 },
+            { x: 1160, y: 80, width: 40, height: 105 }
+
         ];
 
         function crearAutos() {
@@ -167,6 +186,8 @@
         const autoImg = new Image();
         autoImg.src = "auto1.png";
 
+
+
         function moverAutos() {
             autos.forEach(auto => {
                 auto.x += auto.speed;
@@ -188,8 +209,8 @@
                 sonidoColision.play();
                 gameOver = true;
                 musica.pause();
-                gameOverOverlay.style.display = "flex"; 
-                gameOverOverlay.innerHTML = "¡Chale, perdiste! <br> Llaves recogidas: " + puntos + "<br>  Reinicia para seguir jugando";
+                gameOverOverlay.style.display = "flex";
+                gameOverOverlay.innerHTML = "¡Chale, perdiste! <br> Llaves recogidas: " + puntos + "<br>  Reinicia para volver a jugar";
                 stopTimer();
                 return true;
             }
@@ -217,13 +238,24 @@
         }
 
         function detectarColisionConObjetivo() {
-            return (
+            if (
                 posX < objetivoX + 30 &&
                 posX + 50 > objetivoX &&
                 posY < objetivoY + 30 &&
                 posY + 50 > objetivoY
-            );
+            ) {
+                puntos++;
+                contadorDiv.textContent = "Llaves: " + puntos;
+                if (puntos === 5 || puntos === 10 || puntos === 15 || puntos ===20 || puntos ===25|| puntos === 30 || puntos ===35|| puntos ===40 || puntos ===45|| puntos ===50) {
+                    muros.splice(0, 1); 
+                }
+
+                let nuevaPos = obtenerPosicionAleatoria();
+                objetivoX = nuevaPos.x;
+                objetivoY = nuevaPos.y;
+            }
         }
+
 
         function startTimer() {
             intervalID = setInterval(function () {
@@ -252,19 +284,35 @@
                 switch (direccion) {
                     case "arriba":
                         nuevaPosY -= velocidad;
-                        if (nuevaPosY < 0) { nuevaPosY = 0; }
+                        if (nuevaPosY < 0) {
+                            nuevaPosY = canvas.height; 
+                            n
+                            document.getElementById("nivel").textContent = "Nivel: " + nivel;
+                            autos.forEach(auto => {
+                                auto.speed += incrementoVelocidad;
+                            });
+                            if (!muros.some(muro => muro.y === 1)) {
+                                muros.unshift({ x: 1, y: 1, width: 15001, height: 10 });
+                            }
+                        }
                         break;
                     case "abajo":
                         nuevaPosY += velocidad;
-                        if (nuevaPosY + 50 > canvas.height) { nuevaPosY = canvas.height - 50; }
+                        if (nuevaPosY + 50 > canvas.height) {
+                            nuevaPosY = canvas.height - 50;
+                        }
                         break;
                     case "izquierda":
                         nuevaPosX -= velocidad;
-                        if (nuevaPosX < 0) { nuevaPosX = 0; }
+                        if (nuevaPosX < 0) {
+                            nuevaPosX = 0;
+                        }
                         break;
                     case "derecha":
                         nuevaPosX += velocidad;
-                        if (nuevaPosX + 50 > canvas.width) { nuevaPosX = canvas.width - 50; }
+                        if (nuevaPosX + 50 > canvas.width) {
+                            nuevaPosX = canvas.width - 50;
+                        }
                         break;
                 }
 
@@ -280,18 +328,14 @@
                     reiniciarJuego();
                 }
 
-                if (detectarColisionConObjetivo()) {
-                    puntos++;
-                    contadorDiv.textContent = "Puntos: " + puntos;
-                    let nuevaPos = obtenerPosicionAleatoria();
-                    objetivoX = nuevaPos.x;
-                    objetivoY = nuevaPos.y;
-                }
+                detectarColisionConObjetivo();
                 moverAutos();
             }
+
             dibujar();
             requestAnimationFrame(actualizar);
         }
+
 
         function dibujar() {
             contexto.clearRect(0, 0, canvas.width, canvas.height);
@@ -300,8 +344,15 @@
             autos.forEach(auto => {
                 contexto.drawImage(autoImg, auto.x, auto.y, auto.width, auto.height);
             });
-            contexto.drawImage(llaveImg, objetivoX, objetivoY, 30, 30); 
+            contexto.drawImage(llaveImg, objetivoX, objetivoY, 30, 30);
+            contexto.fillStyle = 'rgba(0, 0, 0, 0.5)'; 
+            muros.forEach(muro => {
+                contexto.fillRect(muro.x, muro.y, muro.width, muro.height);
+            });
         }
+
+
+
 
         function detenerJuego() {
             musica.pause();
@@ -337,7 +388,7 @@
         window.addEventListener("keydown", function (evento) {
             if (gameOver && (evento.key === "r" || evento.key === "R")) {
                 reiniciarJuego();
-                return; 
+                return;
             }
 
             switch (evento.key) {
@@ -394,5 +445,4 @@
 
     </script>
 </body>
-
 </html>
