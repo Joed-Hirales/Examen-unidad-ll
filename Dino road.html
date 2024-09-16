@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Juego tipo Crossy Road</title>
+    <title>Dino road</title>
     <style type="text/css">
         body {
             background-color: rgb(255, 255, 255);
@@ -33,7 +33,7 @@
 
 <body>
     <canvas id="lienzo" width="1500" height="900"></canvas>
-    <div id="contador">Puntos: 0</div>
+    <div id="contador">Llaves: 0</div>
 
     <script type="text/javascript">
         const canvas = document.getElementById("lienzo");
@@ -77,14 +77,14 @@
 
         // Definición de los muros
         const muros = [
-            { x: 50, y: 60, width: 112, height: 105},
-            { x: 40, y: 280, width: 75, height: 65},
-            { x: 685, y: 280, width: 75, height: 65},
-            { x: 1400, y: 305, width: 55, height: 40},
-            { x: 308, y: 420, width: 110, height: 97},
-            { x: 1066, y: 420, width: 95, height: 97},
-            { x: 90, y: 600, width: 50, height: 45},
-            { x: 1310, y: 600, width: 72, height: 65}
+            { x: 50, y: 60, width: 112, height: 105 },
+            { x: 40, y: 280, width: 75, height: 65 },
+            { x: 685, y: 280, width: 75, height: 65 },
+            { x: 1400, y: 305, width: 55, height: 40 },
+            { x: 308, y: 420, width: 110, height: 97 },
+            { x: 1066, y: 420, width: 95, height: 97 },
+            { x: 90, y: 600, width: 50, height: 45 },
+            { x: 1310, y: 600, width: 72, height: 65 }
         ];
 
         function crearAutos() {
@@ -133,6 +133,8 @@
                 posY < auto.y + auto.height &&
                 posY + 50 > auto.y
             );
+            musica.stop;
+
         }
 
         function detectarColisionConMuros(x, y, width, height) {
@@ -243,7 +245,6 @@
             contadorDiv.textContent = "Puntos: 0";
             direccion = "";
             gameOver = false;
-            musica.play();
             crearAutos();
         }
 
