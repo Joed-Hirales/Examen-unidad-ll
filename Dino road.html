@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dino road</title>
+    <title>Juego tipo Crossy Road</title>
     <style type="text/css">
         body {
             background-color: rgb(255, 255, 255);
@@ -40,19 +40,19 @@
         const contexto = canvas.getContext("2d");
         const contadorDiv = document.getElementById("contador");
 
-        const musica = new Audio("C:/Users/PRIDE ALPHA PLUS/Desktop/programacion avanzada/Examen uidad ll/zazaza.mp3");
+        const musica = new Audio("zazaza.mp3");
         musica.loop = true;
 
-        const sonidoColision = new Audio("C:/Users/PRIDE ALPHA PLUS/Desktop/programacion avanzada/Examen uidad ll/bomba.m4a");
+        const sonidoColision = new Audio("bomba.m4a");
 
         const fondo = new Image();
-        fondo.src = "C:/Users/PRIDE ALPHA PLUS/Desktop/programacion avanzada/Examen uidad ll/fondo2.jpg";
+        fondo.src = "fondo.jpg";
 
         const imagenes = {
-            arriba: "C:/Users/PRIDE ALPHA PLUS/Desktop/programacion avanzada/Examen uidad ll/DinoArriba.png",
-            abajo: "C:/Users/PRIDE ALPHA PLUS/Desktop/programacion avanzada/Examen uidad ll/DinoAbajo.png",
-            izquierda: "C:/Users/PRIDE ALPHA PLUS/Desktop/programacion avanzada/Examen uidad ll/dinoIzquierda.png",
-            derecha: "C:/Users/PRIDE ALPHA PLUS/Desktop/programacion avanzada/Examen uidad ll/dinoDerecha.png"
+            arriba: "DinoArriba.png",
+            abajo: "DinoAbajo.png",
+            izquierda: "dinoIzquierda.png",
+            derecha: "dinoDerecha.png"
         };
 
         let imagenActual = new Image();
@@ -71,15 +71,20 @@
 
         // Imagen de la llave
         const llaveImg = new Image();
-        llaveImg.src = "C:/Users/PRIDE ALPHA PLUS/Desktop/programacion avanzada/Examen uidad ll/llave.png";
+        llaveImg.src = "llave.png";
         let objetivoX = 300;
         let objetivoY = 300;
 
         // Definición de los muros
         const muros = [
-            { x: 100, y: 100, width: 200, height: 20 },
-            { x: 400, y: 300, width: 200, height: 20 },
-            { x: 700, y: 500, width: 200, height: 20 }
+            { x: 50, y: 60, width: 112, height: 105},
+            { x: 40, y: 280, width: 75, height: 65},
+            { x: 685, y: 280, width: 75, height: 65},
+            { x: 1400, y: 305, width: 55, height: 40},
+            { x: 308, y: 420, width: 110, height: 97},
+            { x: 1066, y: 420, width: 95, height: 97},
+            { x: 90, y: 600, width: 50, height: 45},
+            { x: 1310, y: 600, width: 72, height: 65}
         ];
 
         function crearAutos() {
@@ -108,7 +113,7 @@
         }
 
         const autoImg = new Image();
-        autoImg.src = "C:/Users/PRIDE ALPHA PLUS/Desktop/programacion avanzada/Examen uidad ll/auto1.png";
+        autoImg.src = "auto1.png";
 
         function moverAutos() {
             autos.forEach(auto => {
@@ -222,12 +227,12 @@
                 contexto.drawImage(autoImg, auto.x, auto.y, auto.width, auto.height);
             });
 
-            // Dibujar los muros
+            /* // Dibujar los muros
             contexto.fillStyle = 'rgba(0, 0, 0, 0.5)'; // Color gris semitransparente
             muros.forEach(muro => {
                 contexto.fillRect(muro.x, muro.y, muro.width, muro.height);
             });
-
+ */
             contexto.drawImage(llaveImg, objetivoX, objetivoY, 30, 30); // Dibujar la llave
         }
 
