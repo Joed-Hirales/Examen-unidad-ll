@@ -128,8 +128,8 @@
         let puntos = 0;
         let pause = false;
         let gameOver = false;
-        let nivel = 1; // Iniciamos el nivel en 1
-        const incrementoVelocidad = 2; // Velocidad adicional en cada nivel
+        let nivel = 1; 
+        const incrementoVelocidad = 2; 
 
 
         const autoVelocidades = [10, 10, 10, 10];
@@ -226,16 +226,16 @@
             );
         }
 
-        function obtenerPosicionAleatoria() {
-            let pos;
-            do {
-                pos = {
-                    x: Math.random() * (canvas.width - 20),
-                    y: Math.random() * (canvas.height - 20)
-                };
-            } while (detectarColisionConAutos(pos.x, pos.y, 15, 15));
-            return pos;
-        }
+function obtenerPosicionAleatoria() {
+    let pos;
+    do {
+        pos = {
+            x: Math.random() * (canvas.width - 20),
+            y: Math.random() * (canvas.height - 20)
+        };
+    } while (detectarColisionConAutos(pos.x, pos.y, 15, 15) || detectarColisionConMuros(pos.x, pos.y, 30, 30)); 
+    return pos;
+}
 
         function detectarColisionConObjetivo() {
             if (
@@ -244,18 +244,16 @@
                 posY < objetivoY + 30 &&
                 posY + 50 > objetivoY
             ) {
-                puntos++;
+                puntos = puntos + 5;
                 contadorDiv.textContent = "Llaves: " + puntos;
                 if (puntos === 5 || puntos === 10 || puntos === 15 || puntos ===20 || puntos ===25|| puntos === 30 || puntos ===35|| puntos ===40 || puntos ===45|| puntos ===50) {
                     muros.splice(0, 1); 
                 }
-
                 let nuevaPos = obtenerPosicionAleatoria();
                 objetivoX = nuevaPos.x;
                 objetivoY = nuevaPos.y;
             }
         }
-
 
         function startTimer() {
             intervalID = setInterval(function () {
@@ -286,11 +284,12 @@
                         nuevaPosY -= velocidad;
                         if (nuevaPosY < 0) {
                             nuevaPosY = canvas.height; 
-                            n
+                            nivel++; 
                             document.getElementById("nivel").textContent = "Nivel: " + nivel;
                             autos.forEach(auto => {
                                 auto.speed += incrementoVelocidad;
                             });
+
                             if (!muros.some(muro => muro.y === 1)) {
                                 muros.unshift({ x: 1, y: 1, width: 15001, height: 10 });
                             }
@@ -336,7 +335,6 @@
             requestAnimationFrame(actualizar);
         }
 
-
         function dibujar() {
             contexto.clearRect(0, 0, canvas.width, canvas.height);
             contexto.drawImage(fondo, 0, 0, canvas.width, canvas.height);
@@ -350,9 +348,6 @@
                 contexto.fillRect(muro.x, muro.y, muro.width, muro.height);
             });
         }
-
-
-
 
         function detenerJuego() {
             musica.pause();
@@ -445,4 +440,5 @@
 
     </script>
 </body>
+
 </html>
