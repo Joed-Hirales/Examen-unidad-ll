@@ -207,19 +207,19 @@
                 switch (direccion) {
                     case "arriba":
                         nuevaPosY -= velocidad;
-                        if (nuevaPosY <= 0) { nuevaPosY = canvas.height; }
+                        if (nuevaPosY < 0) { nuevaPosY = 0; }  // Así no saldra por arriba
                         break;
                     case "abajo":
                         nuevaPosY += velocidad;
-                        if (nuevaPosY >= canvas.height) { nuevaPosY = 0; }
+                        if (nuevaPosY + 50 > canvas.height) { nuevaPosY = canvas.height - 50; }  // Así no saldra por abajo
                         break;
                     case "izquierda":
                         nuevaPosX -= velocidad;
-                        if (nuevaPosX <= 0) { nuevaPosX = canvas.width; }
+                        if (nuevaPosX < 0) { nuevaPosX = 0; }  // Así no saldra por el lado izquierdo
                         break;
                     case "derecha":
                         nuevaPosX += velocidad;
-                        if (nuevaPosX >= canvas.width) { nuevaPosX = 0; }
+                        if (nuevaPosX + 50 > canvas.width) { nuevaPosX = canvas.width - 50; }  // Así no saldra por el lado derecho
                         break;
                 }
 
@@ -305,7 +305,11 @@
         });
 
         window.addEventListener("keyup", (e) => {
-            direccion = "";
+            if (event.key === "ArrowUp" || event.key === "w" ||
+                event.key === "ArrowDown" || event.key === "s" ||
+                event.key === "ArrowLeft" || event.key === "a" ||
+                event.key === "ArrowRight" || event.key === "d") 
+                direccion = "";
         });
         
         crearAutos();
