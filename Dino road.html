@@ -90,7 +90,7 @@
     <div id="nivel"> nivel: 1</div>
     <div id="contador">Llaves: 0 <br> <br> </div>
     <div id="controles">Controles: <br> <br> W - Arriba <br> <br> S - Abajo <br> <br> A - Izquierda <br> <br> D -
-        Derecha <br><br> P - Pausa</div>
+        Derecha <br><br> P - Pausa <br><br> M - Musica</div>
     <div id="timerDisplay">Tiempo: 00:00</div>
     <div id="pauseOverlay">Juego pausado.</div>
     <div id="gameOverOverlay">¡Chale, perdiste! <br> Llaves recogidas: 0 <br> Presiona R para reiniciar.</div>
@@ -107,7 +107,6 @@
         fondo.src = "fondo.jpg";
         const gameOverOverlay = document.getElementById("gameOverOverlay");
 
-
         const imagenes = {
             arriba: "DinoArriba.png",
             abajo: "DinoAbajo.png",
@@ -117,7 +116,6 @@
 
         let imagenActual = new Image();
         imagenActual.src = imagenes.abajo;
-
         let time = 0;
         let tiempoTranscurrido = 0;
         let intervalID;
@@ -128,22 +126,20 @@
         let puntos = 0;
         let pause = false;
         let gameOver = false;
-        let nivel = 1; 
-        const incrementoVelocidad = 2; 
-
-
+        let nivel = 1;
+        const incrementoVelocidad = 2;
         const autoVelocidades = [10, 10, 10, 10];
         let autos = [];
-
         const llaveImg = new Image();
         llaveImg.src = "llave.png";
         let objetivoX = 300;
         let objetivoY = 300;
-
+        const autoImg = new Image();
+        autoImg.src = "auto1.png";
 
         const muros = [
             { x: 1, y: 1, width: 15001, height: 5 },
-            { x: 43, y: 60, width:120, height: 120 },
+            { x: 43, y: 60, width: 120, height: 120 },
             { x: 40, y: 280, width: 75, height: 65 },
             { x: 685, y: 280, width: 75, height: 65 },
             { x: 1395, y: 290, width: 60, height: 40 },
@@ -183,11 +179,6 @@
             ];
         }
 
-        const autoImg = new Image();
-        autoImg.src = "auto1.png";
-
-
-
         function moverAutos() {
             autos.forEach(auto => {
                 auto.x += auto.speed;
@@ -210,7 +201,7 @@
                 gameOver = true;
                 musica.pause();
                 gameOverOverlay.style.display = "flex";
-                gameOverOverlay.innerHTML = "¡Chale, perdiste! <br> Llaves recogidas: " + puntos + "<br>  Reinicia para volver a jugar";
+                gameOverOverlay.innerHTML = "¡Chale, perdiste! <br> Llaves recogidas: " + puntos + "<br> Nivel alcanzado: "+ nivel +"<br>  Reinicia para volver a jugar";
                 stopTimer();
                 return true;
             }
@@ -226,16 +217,16 @@
             );
         }
 
-function obtenerPosicionAleatoria() {
-    let pos;
-    do {
-        pos = {
-            x: Math.random() * (canvas.width - 20),
-            y: Math.random() * (canvas.height - 20)
-        };
-    } while (detectarColisionConAutos(pos.x, pos.y, 15, 15) || detectarColisionConMuros(pos.x, pos.y, 30, 30)); 
-    return pos;
-}
+        function obtenerPosicionAleatoria() {
+            let pos;
+            do {
+                pos = {
+                    x: Math.random() * (canvas.width - 20),
+                    y: Math.random() * (canvas.height - 20)
+                };
+            } while (detectarColisionConAutos(pos.x, pos.y, 15, 15) || detectarColisionConMuros(pos.x, pos.y, 30, 30));
+            return pos;
+        }
 
         function detectarColisionConObjetivo() {
             if (
@@ -244,14 +235,17 @@ function obtenerPosicionAleatoria() {
                 posY < objetivoY + 30 &&
                 posY + 50 > objetivoY
             ) {
-                puntos = puntos + 5;
+                puntos = puntos + 1;
                 contadorDiv.textContent = "Llaves: " + puntos;
-                if (puntos === 5 || puntos === 10 || puntos === 15 || puntos ===20 || puntos ===25|| puntos === 30 || puntos ===35|| puntos ===40 || puntos ===45|| puntos ===50) {
-                    muros.splice(0, 1); 
+                if (puntos % 5 === 0) {
+                    muros.splice(0, 1);
                 }
-                let nuevaPos = obtenerPosicionAleatoria();
-                objetivoX = nuevaPos.x;
-                objetivoY = nuevaPos.y;
+
+                if (puntos <= 5) {
+                    let nuevaPos = obtenerPosicionAleatoria();
+                    objetivoX = nuevaPos.x;
+                    objetivoY = nuevaPos.y;
+                }
             }
         }
 
@@ -283,8 +277,8 @@ function obtenerPosicionAleatoria() {
                     case "arriba":
                         nuevaPosY -= velocidad;
                         if (nuevaPosY < 0) {
-                            nuevaPosY = canvas.height; 
-                            nivel++; 
+                            nuevaPosY = canvas.height;
+                            nivel++;
                             document.getElementById("nivel").textContent = "Nivel: " + nivel;
                             autos.forEach(auto => {
                                 auto.speed += incrementoVelocidad;
@@ -292,6 +286,10 @@ function obtenerPosicionAleatoria() {
 
                             if (!muros.some(muro => muro.y === 1)) {
                                 muros.unshift({ x: 1, y: 1, width: 15001, height: 10 });
+                                puntos = 0;
+                                let contadorDiv = document.getElementById("contador");
+                                contadorDiv.textContent = "Llaves: " + puntos;
+                                contexto.drawImage(llaveImg, objetivoX, objetivoY, 30, 30);
                             }
                         }
                         break;
@@ -342,11 +340,16 @@ function obtenerPosicionAleatoria() {
             autos.forEach(auto => {
                 contexto.drawImage(autoImg, auto.x, auto.y, auto.width, auto.height);
             });
-            contexto.drawImage(llaveImg, objetivoX, objetivoY, 30, 30);
-            contexto.fillStyle = 'rgba(0, 0, 0, 0.5)'; 
-            muros.forEach(muro => {
-                contexto.fillRect(muro.x, muro.y, muro.width, muro.height);
-            });
+            if (puntos < 5) {
+                contexto.drawImage(llaveImg, objetivoX, objetivoY, 30, 30);
+            }
+
+            contexto.fillStyle = 'rgba(0, 0, 0, 0.5)';
+            // Mostrar solo el primer muro
+            if (muros.length > 0) {
+                const primerMuro = muros[0];
+                contexto.fillRect(primerMuro.x, primerMuro.y, primerMuro.width, primerMuro.height);
+            }
         }
 
         function detenerJuego() {
@@ -406,7 +409,9 @@ function obtenerPosicionAleatoria() {
                 case "p":
                     controlPause();
                     break;
-
+                case "m":
+                    musica.play();
+                    break;
             }
         });
 
